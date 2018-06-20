@@ -1,0 +1,1 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.disc99.protocol.buffers.spring.cloud.stream.ProtocolBuffersSpringCloudStreamAutoConfiguration

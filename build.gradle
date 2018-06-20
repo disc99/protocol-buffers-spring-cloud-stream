@@ -30,6 +30,9 @@ ext {
 }
 
 dependencies {
+	compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.5.1'
+
+
 	compile('org.springframework.cloud:spring-cloud-stream')
 	compileOnly('org.springframework.boot:spring-boot-configuration-processor')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
