@@ -3,44 +3,79 @@ buildscript {
 		springBootVersion = '2.0.3.RELEASE'
 	}
 	repositories {
-		mavenCentral()
+		mavenLocal()
+		jcenter()
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
 	}
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'maven'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.jfrog.bintray'
 
 group = 'io.disc99'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 sourceCompatibility = 1.8
 
 repositories {
 	mavenCentral()
 	maven { url "https://repo.spring.io/milestone" }
+	jcenter()
 }
 
 
-ext {
-	springCloudVersion = 'Finchley.RC2'
+jar {
+	enabled = true
+}
+
+bootJar{
+	enabled = false
+}
+
+configurations {
+	published
+}
+
+task sourceJar(type: Jar) {
+	from sourceSets.main.allSource
+	classifier = 'sources'
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = 'javadoc'
+	from javadoc.destinationDir
+}
+
+artifacts {
+	published sourceJar
+	published javadocJar
+}
+
+bintray {
+	user = BINTRAY_USER
+	key = BINTRAY_KEY
+	configurations = ['published', 'archives']
+	pkg {
+		repo = 'maven'
+		name = 'protocol-buffers-spring-cloud-stream'
+		websiteUrl = 'https://github.com/disc99/protocol-buffers-spring-cloud-stream'
+		issueTrackerUrl = 'https://github.com/disc99/protocol-buffers-spring-cloud-stream/issues'
+		vcsUrl = 'https://github.com/disc99/protocol-buffers-spring-cloud-stream.git'
+		publicDownloadNumbers = true
+	}
 }
 
 dependencies {
-	compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.5.1'
-
-
-	compile('org.springframework.cloud:spring-cloud-stream')
-	compileOnly('org.springframework.boot:spring-boot-configuration-processor')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.springframework.cloud:spring-cloud-stream-test-support')
-}
-
-dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-	}
+	compile 'com.google.protobuf:protobuf-java:3.5.1'
+	compile 'org.springframework:spring-core'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-messaging'
+	compile 'org.springframework.boot:spring-boot-autoconfigure'
+	compile 'org.springframework.cloud:spring-cloud-stream:2.0.0.RELEASE'
+	compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
 }
