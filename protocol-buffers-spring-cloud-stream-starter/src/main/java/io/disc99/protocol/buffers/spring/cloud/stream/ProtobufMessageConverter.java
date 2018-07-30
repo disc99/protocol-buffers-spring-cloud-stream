@@ -9,6 +9,12 @@ import org.springframework.util.MimeType;
 
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * A {@link org.springframework.messaging.converter.MessageConverter} to convert a
+ * protocol buffers objects, when expected content type is "application/x-protobuf".
+ *
+ * @author disc99
+ */
 public class ProtobufMessageConverter extends AbstractMessageConverter {
 
     public ProtobufMessageConverter() {
@@ -36,7 +42,6 @@ public class ProtobufMessageConverter extends AbstractMessageConverter {
 
     private Object convert(MethodParameter conversionHint, Object payload)  {
         MethodParameter param = conversionHint.nestedIfOptional();
-
         if (Message.class.isAssignableFrom(param.getParameterType())) {
             param = param.nested();
         }

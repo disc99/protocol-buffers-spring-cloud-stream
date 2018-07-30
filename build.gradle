@@ -12,70 +12,84 @@ buildscript {
 	}
 }
 
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'maven'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'com.jfrog.bintray'
-
-group = 'io.disc99'
-version = '0.0.1'
-sourceCompatibility = 1.8
-
-repositories {
-	mavenCentral()
-	maven { url "https://repo.spring.io/milestone" }
-	jcenter()
-}
-
-
-jar {
-	enabled = true
-}
-
-bootJar{
-	enabled = false
+ext {
+	jdk = 1.8
+	encoding = 'UTF-8'
 }
 
 configurations {
 	published
 }
 
-task sourceJar(type: Jar) {
-	from sourceSets.main.allSource
-	classifier = 'sources'
-}
-task javadocJar(type: Jar, dependsOn: javadoc) {
-	classifier = 'javadoc'
-	from javadoc.destinationDir
-}
+allprojects {
+	repositories {
+		mavenCentral()
+		jcenter()
+	}
+	apply plugin: 'com.jfrog.bintray'
 
-artifacts {
-	published sourceJar
-	published javadocJar
-}
-
-bintray {
-	user = BINTRAY_USER
-	key = BINTRAY_KEY
-	configurations = ['published', 'archives']
-	pkg {
-		repo = 'maven'
-		name = 'protocol-buffers-spring-cloud-stream'
-		websiteUrl = 'https://github.com/disc99/protocol-buffers-spring-cloud-stream'
-		issueTrackerUrl = 'https://github.com/disc99/protocol-buffers-spring-cloud-stream/issues'
-		vcsUrl = 'https://github.com/disc99/protocol-buffers-spring-cloud-stream.git'
-		publicDownloadNumbers = true
+	ext.publish = true
+	bintray {
+		user = System.getenv('BINTRAY_USER')
+		key = System.getenv('BINTRAY_KEY')
+		configurations = ['published', 'archives']
+		publish = project.publish
+		pkg {
+			repo = 'maven'
+			name = 'protocol-buffers-spring-cloud-stream'
+			websiteUrl = 'https://github.com/disc99/protocol-buffers-spring-cloud-stream'
+			issueTrackerUrl = 'https://github.com/disc99/protocol-buffers-spring-cloud-stream/issues'
+			vcsUrl = 'https://github.com/disc99/protocol-buffers-spring-cloud-stream.git'
+			licenses = ['MIT']
+			publicDownloadNumbers = true
+			version {
+				name = '0.0.2'
+				vcsTag = '0.0.2'
+			}
+		}
 	}
 }
 
-dependencies {
-	compile 'com.google.protobuf:protobuf-java:3.5.1'
-	compile 'org.springframework:spring-core'
-	compile 'org.springframework:spring-context'
-	compile 'org.springframework:spring-messaging'
-	compile 'org.springframework.boot:spring-boot-autoconfigure'
-	compile 'org.springframework.cloud:spring-cloud-stream:2.0.0.RELEASE'
-	compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'idea'
+	apply plugin: 'maven'
+
+	group = 'io.disc99'
+	version = '0.0.2'
+
+	configurations {
+		published
+	}
+
+	task sourceJar(type: Jar) {
+		from sourceSets.main.allSource
+		classifier = 'sources'
+	}
+	task javadocJar(type: Jar, dependsOn: javadoc) {
+		classifier = 'javadoc'
+		from javadoc.destinationDir
+	}
+
+	artifacts {
+		published sourceJar
+		published javadocJar
+	}
+
+	compileJava {
+		sourceCompatibility = rootProject.jdk
+		targetCompatibility = rootProject.jdk
+		options.encoding = rootProject.encoding
+	}
+}
+
+project("protocol-buffers-spring-cloud-stream-starter") {
+	dependencies {
+		compile 'com.google.protobuf:protobuf-java:3.5.1'
+		compile 'org.springframework:spring-core'
+		compile 'org.springframework:spring-context'
+		compile 'org.springframework:spring-messaging'
+		compile 'org.springframework.boot:spring-boot-autoconfigure'
+		compile 'org.springframework.cloud:spring-cloud-stream:2.0.0.RELEASE'
+	}
 }

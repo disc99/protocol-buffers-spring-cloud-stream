@@ -1,1 +1,1 @@
-rootProject.name = 'protocol-buffers-spring-cloud-stream'
+include "protocol-buffers-spring-cloud-stream-starter"
